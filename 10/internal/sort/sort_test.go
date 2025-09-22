@@ -1,9 +1,13 @@
 package sort_test
 
 import (
+	"testing"
+
 	"mysort/internal/config"
 	"mysort/internal/sort"
-	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSort(t *testing.T) {
@@ -66,25 +70,18 @@ func TestSort(t *testing.T) {
 			name:  "human readable numbers",
 			lines: []string{"10K", "2M", "500"},
 			cfg:   config.Config{Numeric: true, Human: true},
-			want:  []string{"500", "10K", "2M"}, // 500 < 10K < 2M
+			want:  []string{"500", "10K", "2M"},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := sort.Sort(tt.lines, tt.cfg)
-			if (err != nil) != tt.wantErr {
-				t.Fatalf("Sort() error = %v, wantErr %v", err, tt.wantErr)
-			}
-			if !tt.wantErr {
-				if len(got) != len(tt.want) {
-					t.Fatalf("len mismatch: got %d, want %d", len(got), len(tt.want))
-				}
-				for i := range tt.want {
-					if got[i] != tt.want[i] {
-						t.Fatalf("got %v, want %v", got, tt.want)
-					}
-				}
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, tt.want, got)
 			}
 		})
 	}
